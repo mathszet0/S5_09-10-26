@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[A2(4)操練Q.14]</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "PingFang HK", "Microsoft JhengHei", "Segoe UI", sans-serif;
+    }
+    body {
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+      color: #1e293b;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .header h1 {
+      color: #1e3a8a;
+      margin: 0;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    .svg-pane {
+      flex: 1 1 420px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 15px;
+      position: relative;
+    }
+    .text-pane {
+      flex: 1 1 500px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    
+    /* 進度條與播放控制區 */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      background: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 10px;
+    }
+    .play-btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .play-btn:hover {
+      background: #1d4ed8;
+      transform: scale(1.03);
+    }
+    .play-btn.playing {
+      background: #dc2626;
+    }
+
+    .progress-container {
+      flex: 1;
+      height: 8px;
+      background: #cbd5e1;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0 10px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.3s ease;
+    }
+
+    .step-buttons {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .step-btn {
+      padding: 6px 12px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #475569;
+      transition: all 0.2s;
+    }
+    .step-btn.active {
+      background: #2563eb;
+      color: white;
+      border-color: #2563eb;
+    }
+
+    /* 解題卡片與動態效果 */
+    .card {
+      background: #f8fafc;
+      border-left: 5px solid #2563eb;
+      padding: 18px;
+      border-radius: 8px;
+      min-height: 310px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .card h2 {
+      margin-top: 0;
+      color: #1e293b;
+      font-size: 20px;
+    }
+    .card p, .card ul {
+      line-height: 1.8;
+      font-size: 16px;
+      color: #334155;
+    }
+    .card ul {
+      padding-left: 20px;
+    }
+    .highlight-box {
+      background-color: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: bold;
+      color: #0369a1;
+      margin-top: 10px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+    .nav-btn {
+      padding: 10px 20px;
+      background-color: #0f172a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background-color: #334155;
+    }
+    .nav-btn:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    /* 精確對齊的 CSS 數學公式排版 */
+    .math-expr-wrap {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+      font-family: "Times New Roman", Times, serif;
+      font-style: italic;
+    }
+    .bracket {
+      font-size: 2.1rem;
+      font-weight: 300;
+      line-height: 0.9;
+      font-family: "Times New Roman", Times, serif;
+      font-style: normal;
+      margin: 0 1px;
+      transform: scaleY(1.2);
+      user-select: none;
+    }
+    .exp {
+      font-size: 0.85rem;
+      font-style: normal;
+      align-self: flex-start;
+      margin-top: -0.1em;
+      margin-left: 1px;
+    }
+    .frac {
+      display: inline-flex;
+      flex-direction: column;
+      text-align: center;
+      padding: 0 4px;
+      font-family: "Times New Roman", Times, serif;
+      font-style: italic;
+      font-size: 1.15em;
+    }
+    .frac .num {
+      border-bottom: 1.5px solid currentColor;
+      padding-bottom: 2px;
+      line-height: 1.1;
+    }
+    .frac .den {
+      padding-top: 2px;
+      line-height: 1.1;
+    }
+    .math-m {
+      font-family: "Times New Roman", Times, serif;
+      font-style: italic;
+    }
+
+    /* SVG 動畫與樣式 */
+    svg {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+    }
+    .shape-base {
+      stroke: #94a3b8;
+      stroke-width: 1.5;
+      fill: none;
+    }
+    .water-fill {
+      fill: #bae6fd;
+      opacity: 0.55;
+      transition: opacity 0.5s ease;
+    }
+    
+    /* 高亮三角形 + 脈衝動畫 */
+    .hl-triangle {
+      transition: all 0.5s ease;
+      opacity: 0;
+    }
+    .hl-triangle.active {
+      opacity: 1;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+    .hl-vef {
+      fill: rgba(234, 179, 8, 0.3);
+      stroke: #eab308;
+      stroke-width: 3.5;
+    }
+    .hl-vab {
+      fill: rgba(59, 130, 246, 0.35);
+      stroke: #2563eb;
+      stroke-width: 3.5;
+    }
+    .hl-vcd {
+      fill: rgba(34, 197, 94, 0.35);
+      stroke: #16a34a;
+      stroke-width: 3.5;
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.75; }
+      50% { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+      100% { opacity: 0.75; }
+    }
+
+    /* 步驟 3 專屬交替閃爍動畫 */
+    @keyframes seqFlashBigCone {
+      0%, 45% { opacity: 0.9; filter: drop-shadow(0 0 8px #f59e0b); stroke-width: 4; }
+      50%, 100% { opacity: 0.15; stroke-width: 1.5; }
+    }
+
+    @keyframes seqFlashWaterArea {
+      0%, 48% { opacity: 0.15; stroke-width: 1.5; }
+      52%, 95% { opacity: 0.9; filter: drop-shadow(0 0 8px #0284c7); stroke-width: 4; }
+      100% { opacity: 0.15; }
+    }
+
+    .seq-big-cone {
+      animation: seqFlashBigCone 4s infinite ease-in-out;
+    }
+
+    .seq-water-area {
+      animation: seqFlashWaterArea 4s infinite ease-in-out;
+    }
+
+    .point-label {
+      font-size: 16px;
+      font-weight: bold;
+      fill: #0f172a;
+    }
+
+    /* 可點擊線段感應區 */
+    .click-target {
+      stroke: transparent;
+      stroke-width: 16;
+      cursor: pointer;
+      fill: none;
+    }
+    .click-target:hover {
+      stroke: rgba(245, 158, 11, 0.5);
+      stroke-width: 6;
+    }
+
+    /* 彈跳動態標籤 (Pop Badge) */
+    .label-badge {
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+    }
+    .label-badge.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+    .label-badge.hide {
+      transform: scale(0);
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>[A2(4)操練Q.14]</h1>
+  </div>
+
+  <div class="container">
+    <!-- SVG 圖形區 -->
+    <div class="svg-pane">
+      <svg viewBox="0 0 460 380" id="geo-svg">
+        <!-- 容器底部水區域 -->
+        <polygon id="water-area" points="136,152 304,152 409,292 31,292" class="water-fill" style="opacity: 0;" />
+
+        <!-- 虛線與隱藏錐體頂部 -->
+        <line x1="220" y1="40" x2="167.5" y2="110" stroke="#cbd5e1" stroke-dasharray="4" stroke-width="1.5" />
+        <line x1="220" y1="40" x2="272.5" y2="110" stroke="#cbd5e1" stroke-dasharray="4" stroke-width="1.5" />
+
+        <!-- 容器輪廓線 -->
+        <line x1="167.5" y1="110" x2="31" y2="292" class="shape-base" stroke-width="2" />
+        <line x1="272.5" y1="110" x2="409" y2="292" class="shape-base" stroke-width="2" />
+
+        <!-- 圓環橫截面 (A-B, C-D, E-F) -->
+        <ellipse cx="220" cy="110" rx="52.5" ry="12" class="shape-base" />
+        <ellipse cx="220" cy="152" rx="84" ry="16" class="shape-base" stroke-dasharray="3,3" />
+        <ellipse cx="220" cy="292" rx="189" ry="30" class="shape-base" />
+
+        <!-- 動態高亮三角形 -->
+        <polygon id="hl-vef" points="220,40 220,292 409,292" class="hl-triangle hl-vef" />
+        <polygon id="hl-vab" points="220,40 220,110 272.5,110" class="hl-triangle hl-vab" />
+        <polygon id="hl-vcd" points="220,40 220,152 304,152" class="hl-triangle hl-vcd" />
+
+        <!-- ================= 步驟 1 專屬：右上角大錐體曲面面積公式卡片 ================= -->
+        <g id="area-visual-step1" class="label-badge" style="display:none;">
+          <rect x="220" y="8" width="230" height="42" rx="6" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <text x="230" y="24" font-size="11" font-weight="bold" fill="#92400e">大錐體曲面面積 = π × r × l</text>
+          <text x="230" y="40" font-size="11" font-weight="bold" fill="#b45309">= π × 27 × 45 = 1215π cm²</text>
+        </g>
+
+        <!-- ================= 步驟 2 專屬：右上角小錐體曲面面積公式卡片 ================= -->
+        <g id="area-visual-step2" class="label-badge" style="display:none;">
+          <rect x="230" y="8" width="220" height="42" rx="6" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="240" y="24" font-size="11" font-weight="bold" fill="#1e40af">小錐體曲面面積 = π × r × l</text>
+          <text x="240" y="40" font-size="11" font-weight="bold" fill="#2563eb">= π × 7.5 × 12.5 = 93.75π cm²</text>
+        </g>
+
+        <!-- ================= 步驟 3 專屬：交替閃爍扣減動畫層 ================= -->
+        <g id="area-visual-step3" style="display:none;">
+          <polygon class="seq-big-cone" points="220,40 409,292 31,292" fill="rgba(245, 158, 11, 0.3)" stroke="#f59e0b" stroke-width="3.5" />
+          <polygon class="seq-water-area" points="136,152 304,152 409,292 31,292" fill="rgba(2, 132, 199, 0.45)" stroke="#0284c7" stroke-width="3.5" />
+
+          <g class="label-badge show">
+            <rect x="295" y="190" width="150" height="24" rx="4" fill="#d97706" />
+            <text x="300" y="206" font-size="12" font-weight="bold" fill="#ffffff">大錐體 VEF 總面積=1215π</text>
+          </g>
+
+          <g class="label-badge show">
+            <rect x="150" y="215" width="140" height="24" rx="4" fill="#0284c7" />
+            <text x="155" y="231" font-size="12" font-weight="bold" fill="#ffffff">底部浸濕面積 = 975π</text>
+          </g>
+
+          <g class="label-badge show">
+            <rect x="155" y="88" width="130" height="24" rx="4" fill="#16a34a" />
+            <text x="160" y="104" font-size="12" font-weight="bold" fill="#ffffff">中錐體 VCD = 240π</text>
+          </g>
+        </g>
+
+        <!-- ================= 步驟 4 專屬：右上角小錐與中錐曲面面積卡片 ================= -->
+        <g id="area-visual-step4" class="label-badge" style="display:none;">
+          <rect x="230" y="6" width="220" height="24" rx="4" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+          <text x="238" y="22" font-size="11" font-weight="bold" fill="#1e40af">小錐曲面面積 = 93.75π cm²</text>
+
+          <rect x="230" y="34" width="220" height="24" rx="4" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="238" y="50" font-size="11" font-weight="bold" fill="#15803d">中錐曲面面積 = 240π cm²</text>
+        </g>
+
+        <!-- 中心高 V-E -->
+        <line x1="220" y1="40" x2="220" y2="292" stroke="#64748b" stroke-dasharray="4" stroke-width="2" />
+
+        <!-- 底半徑 EF, CD, AB -->
+        <line x1="220" y1="292" x2="409" y2="292" stroke="#64748b" stroke-width="2" />
+        <line x1="220" y1="152" x2="304" y2="152" stroke="#64748b" stroke-width="1.5" />
+        <line x1="220" y1="110" x2="272.5" y2="110" stroke="#64748b" stroke-width="1.5" />
+
+        <!-- 母線 VF -->
+        <line x1="220" y1="40" x2="409" y2="292" stroke="#64748b" stroke-dasharray="2" stroke-width="1.5" />
+
+        <!-- 點標籤 -->
+        <text x="215" y="32" class="point-label">V</text>
+        <text x="202" y="112" class="point-label">A</text>
+        <text x="280" y="112" class="point-label">B</text>
+        <text x="202" y="156" class="point-label">C</text>
+        <text x="312" y="156" class="point-label">D</text>
+        <text x="202" y="300" class="point-label">E</text>
+        <text x="418" y="300" class="point-label">F</text>
+
+        <!-- ================= 點擊感應線 (Click Targets) ================= -->
+        <line x1="220" y1="40" x2="220" y2="110" class="click-target" onclick="toggleTag('tag-va')" />
+        <line x1="220" y1="110" x2="220" y2="292" class="click-target" onclick="toggleTag('tag-ae')" />
+        <line x1="220" y1="292" x2="409" y2="292" class="click-target" onclick="toggleTag('tag-ef')" />
+        <line x1="220" y1="40" x2="409" y2="292" class="click-target" onclick="toggleTag('tag-vf')" />
+        <line x1="220" y1="110" x2="272.5" y2="110" class="click-target" onclick="toggleTag('tag-ab')" />
+        <line x1="220" y1="40" x2="272.5" y2="110" class="click-target" onclick="toggleTag('tag-vb')" />
+        <line x1="220" y1="152" x2="304" y2="152" class="click-target" onclick="toggleTag('tag-cd')" />
+        <line x1="220" y1="40" x2="220" y2="152" class="click-target" onclick="toggleTag('tag-vc')" />
+        <line x1="220" y1="152" x2="220" y2="292" class="click-target" onclick="toggleTag('tag-ce')" />
+
+        <!-- ================= 長度動態標籤 ================= -->
+        <g id="tag-va" class="label-badge show" onclick="toggleTag('tag-va')">
+          <rect x="155" y="68" width="58" height="20" rx="3" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+          <text x="160" y="82" font-size="12" font-weight="bold" fill="#dc2626">10 cm</text>
+        </g>
+
+        <g id="tag-ae" class="label-badge show" onclick="toggleTag('tag-ae')">
+          <rect x="155" y="190" width="58" height="20" rx="3" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+          <text x="160" y="204" font-size="12" font-weight="bold" fill="#dc2626">26 cm</text>
+        </g>
+
+        <g id="tag-ef" class="label-badge show" onclick="toggleTag('tag-ef')">
+          <rect x="290" y="298" width="58" height="20" rx="3" fill="#fee2e2" stroke="#ef4444" stroke-width="1"/>
+          <text x="295" y="312" font-size="12" font-weight="bold" fill="#dc2626">27 cm</text>
+        </g>
+
+        <g id="tag-vf" class="label-badge hide" onclick="toggleTag('tag-vf')">
+          <rect x="315" y="150" width="85" height="24" rx="4" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+          <text x="320" y="166" font-size="13" font-weight="bold" fill="#b45309">VF = 45cm</text>
+        </g>
+
+        <g id="tag-ab" class="label-badge hide" onclick="toggleTag('tag-ab')">
+          <rect x="228" y="118" width="78" height="18" rx="3" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+          <text x="231" y="131" font-size="11" font-weight="bold" fill="#1e40af">AB = 7.5cm</text>
+        </g>
+
+        <g id="tag-vb" class="label-badge hide" onclick="toggleTag('tag-vb')">
+          <rect x="260" y="52" width="85" height="20" rx="3" fill="#dbeafe" stroke="#2563eb" stroke-width="1"/>
+          <text x="264" y="66" font-size="11" font-weight="bold" fill="#1e40af">VB = 12.5cm</text>
+        </g>
+
+        <g id="tag-vc" class="label-badge hide" onclick="toggleTag('tag-vc')">
+          <rect x="135" y="100" width="78" height="20" rx="3" fill="#dcfce7" stroke="#16a34a" stroke-width="1"/>
+          <text x="139" y="114" font-size="12" font-weight="bold" fill="#15803d">VC = 16cm</text>
+        </g>
+
+        <g id="tag-ce" class="label-badge hide" onclick="toggleTag('tag-ce')">
+          <rect x="110" y="215" width="102" height="24" rx="4" fill="#15803d"/>
+          <text x="115" y="231" font-size="12" font-weight="bold" fill="#ffffff">水深 CE = 20cm</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- 解法文字區 -->
+    <div class="text-pane">
+      <div>
+        <div class="controls-bar">
+          <button class="play-btn" id="play-btn" onclick="toggleAutoPlay()">
+            <span id="play-icon">▶️</span> <span id="play-text">自動播放動畫</span>
+          </button>
+          <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="step-buttons">
+          <button class="step-btn active" onclick="goStep(0)">總覽</button>
+          <button class="step-btn" onclick="goStep(1)">步驟 1</button>
+          <button class="step-btn" onclick="goStep(2)">步驟 2</button>
+          <button class="step-btn" onclick="goStep(3)">步驟 3</button>
+          <button class="step-btn" onclick="goStep(4)">步驟 4</button>
+        </div>
+
+        <div class="card" id="step-content">
+          <!-- 動態載入文字內容 -->
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="nav-btn" id="prev-btn" onclick="prevStep()" disabled>上一步</button>
+        <button class="nav-btn" id="next-btn" onclick="nextStep()">下一步</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentStep = 0;
+    let autoPlayTimer = null;
+    let isPlaying = false;
+
+    const steps = [
+      {
+        title: "解題核心思路",
+        content: `
+          <p><b>目標：</b>求容器內的水深 <span class="math-m">CE</span>。</p>
+          <p><b>關鍵思路：</b></p>
+          <ul>
+            <li>要求水深 <span class="math-m">CE</span>，只需先求出頂點至水面的距離 <span class="math-m">VC</span>。</li>
+            <li>已知大圓錐總高 <span class="math-m">VE = 36 cm</span>，故水深 <span class="math-m">CE = VE - VC = 36 - VC</span>。</li>
+          </ul>
+          <div class="highlight-box">請按「播放動畫」或「下一步」開啟示範！</div>
+        `,
+        highlights: [],
+        showWater: false,
+        showTags: ['tag-va', 'tag-ae', 'tag-ef']
+      },
+      {
+        title: "步驟 1：求大圓錐的母線 VF",
+        content: `
+          <p>首先集中觀察直角三角形 <b style="color:#d97706;">△VEF (黃色發光)</b>：</p>
+          <ul>
+            <li>已知大圓錐高 <span class="math-m">VE = 36 cm</span></li>
+            <li>已知底半徑 <span class="math-m">EF = 27 cm</span></li>
+          </ul>
+          <p>利用畢氏定理求母線 <span class="math-m">VF</span>：</p>
+          <p style="font-size:18px; color:#d97706; font-weight:bold;">
+            <span class="math-m">VF</span> = √(36<sup>2</sup> + 27<sup>2</sup>) = √(1296 + 729) = √2025 = <b>45 cm</b>
+          </p>
+          <div class="highlight-box" style="background:#fef3c7; border-color:#fde047; color:#92400e;">
+            ✨ 已求得母線 VF = 45 cm（看左圖黃色邊界與標籤）
+          </div>
+        `,
+        highlights: ['hl-vef'],
+        showWater: false,
+        showTags: ['tag-va', 'tag-ae', 'tag-ef', 'tag-vf']
+      },
+      {
+        title: "步驟 2：利用相似三角形求小錐體 (VAB)",
+        content: `
+          <p>比較相似三角形 <b style="color:#2563eb;">△VAB (藍)</b> 與 <b style="color:#d97706;">△VEF (黃)</b>：</p>
+          <p>已知 <span class="math-m">VA = 36 - 26 = 10 cm</span></p>
+
+          <div style="display: flex; justify-content: space-around; margin: 15px 0; background: #ffffff; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <!-- 求 AB 直向對齊 -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-weight:bold; color:#1e293b;">• 求半徑 AB：</span>
+              <div class="math-expr-wrap"><span class="frac"><span class="num">AB</span><span class="den">EF</span></span> <span style="margin: 0 4px;">=</span> <span class="frac"><span class="num">VA</span><span class="den">VE</span></span></div>
+              <div class="math-expr-wrap"><span class="frac"><span class="num">AB</span><span class="den">27</span></span> <span style="margin: 0 4px;">=</span> <span class="frac"><span class="num">10</span><span class="den">36</span></span></div>
+              <div class="math-expr-wrap" style="color:#2563eb; font-size: 1.1em;"><b>AB = 7.5 cm</b></div>
+            </div>
+
+            <!-- 求 VB 直向對齊 -->
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+              <span style="font-weight:bold; color:#1e293b;">• 求母線 VB：</span>
+              <div class="math-expr-wrap"><span class="frac"><span class="num">VB</span><span class="den">VF</span></span> <span style="margin: 0 4px;">=</span> <span class="frac"><span class="num">VA</span><span class="den">VE</span></span></div>
+              <div class="math-expr-wrap"><span class="frac"><span class="num">VB</span><span class="den">45</span></span> <span style="margin: 0 4px;">=</span> <span class="frac"><span class="num">10</span><span class="den">36</span></span></div>
+              <div class="math-expr-wrap" style="color:#2563eb; font-size: 1.1em;"><b>VB = 12.5 cm</b></div>
+            </div>
+          </div>
+
+          <p><b>小圓錐 (VAB) 曲面面積：</b></p>
+          <p style="font-size:16px; color:#2563eb; font-weight:bold;">
+            &pi; &times; r &times; l = &pi; &times; 7.5 &times; 12.5 = <b>93.75&pi; cm<sup>2</sup></b>
+          </p>
+        `,
+        highlights: ['hl-vab', 'hl-vef'],
+        showWater: false,
+        showTags: ['tag-va', 'tag-ef', 'tag-vf', 'tag-ab', 'tag-vb']
+      },
+      {
+        title: "步驟 3：求中錐體 (VCD) 的曲面面積",
+        content: `
+          <p><b>1. 計算大圓錐 (VEF) 曲面面積：</b><br>
+          <span style="color:#d97706; font-weight:bold;">&pi; &times; 27 &times; 45 = 1215&pi; cm<sup>2</sup></span></p>
+
+          <p><b>2. 題目已知浸濕曲面面積：</b><br>
+          <span style="color:#0284c7; font-weight:bold;">底部容器浸濕面積 = 975&pi; cm<sup>2</sup></span></p>
+
+          <p><b>3. 扣減求出中圓錐 (VCD) 曲面面積：</b><br>
+          從整座大圓錐扣除底部浸濕部分，即得水面以上的「中圓錐 VCD」：</p>
+
+          <div style="text-align:center; margin: 12px 0; padding: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+            <span style="font-size:15px; font-weight:bold;">
+              <span style="color:#d97706;">大錐體 (1215&pi;)</span> - <span style="color:#0284c7;">浸濕面積 (975&pi;)</span> = <span style="color:#16a34a;">中錐體 VCD</span>
+            </span>
+            <br>
+            <span style="font-size:18px; color:#16a34a; font-weight:bold;">1215&pi; - 975&pi; = 240&pi; cm<sup>2</sup></span>
+          </div>
+        `,
+        highlights: [],
+        showWater: false,
+        showTags: []
+      },
+      {
+        title: "步驟 4：利用面積比求 VC 及水深 CE",
+        content: `
+          <p>比較相似三角形 <b style="color:#2563eb;">△VAB (藍)</b> 與 <b style="color:#16a34a;">△VCD (綠)</b>：</p>
+          <p>利用面積比等於對應邊二次方比：</p>
+          
+          <div style="text-align:center; margin: 16px 0; font-size: 16px;">
+            <span class="math-expr-wrap">
+              <span class="bracket">(</span><span class="frac"><span class="num">VA</span><span class="den">VC</span></span><span class="bracket">)</span><sup class="exp">2</sup>
+            </span>
+            <span style="margin: 0 6px;">=</span>
+            <span class="math-expr-wrap">
+              <span class="frac"><span class="num">小錐體 VAB 曲面面積</span><span class="den">中錐體 VCD 曲面面積</span></span>
+            </span>
+          </div>
+
+          <div style="text-align:center; margin: 16px 0; font-size: 16px;">
+            <span class="math-expr-wrap">
+              <span class="bracket">(</span><span class="frac"><span class="num">10</span><span class="den">VC</span></span><span class="bracket">)</span><sup class="exp">2</sup>
+            </span>
+            <span style="margin: 0 6px;">=</span>
+            <span class="math-expr-wrap">
+              <span class="frac"><span class="num">93.75&pi;</span><span class="den">240&pi;</span></span>
+            </span>
+            <span style="margin: 0 8px;">&rArr;</span>
+            <span class="math-expr-wrap">
+              <span class="frac"><span class="num">100</span><span class="den">VC<sup>2</sup></span></span>
+            </span>
+            <span style="margin: 0 6px;">=</span>
+            <span class="math-expr-wrap">
+              <span class="frac"><span class="num">93.75</span><span class="den">240</span></span>
+            </span>
+          </div>
+
+          <p style="text-align:center; font-size:16px; color:#16a34a; font-weight:bold; margin-top:15px;">
+            VC<sup>2</sup> = 256 &rArr; <b>VC = 16 cm</b>
+          </p>
+          <div class="highlight-box" style="background:#dcfce7; border-color:#86efac; color:#15803d; font-size:18px; text-align:center;">
+            🎉 容器內的水深 CE = VE - VC = 36 - 16 = <b>20 cm</b>
+          </div>
+        `,
+        highlights: ['hl-vab', 'hl-vcd'],
+        showWater: false,
+        showTags: ['tag-va']
+      }
+    ];
+
+    // 手動開關長度標籤
+    function toggleTag(tagId) {
+      const el = document.getElementById(tagId);
+      if (el) {
+        if (el.classList.contains('show')) {
+          el.classList.remove('show');
+          el.classList.add('hide');
+        } else {
+          el.classList.remove('hide');
+          el.classList.add('show');
+        }
+      }
+    }
+
+    // 自動播放 / 暫停控制
+    function toggleAutoPlay() {
+      if (isPlaying) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    function startAutoPlay() {
+      isPlaying = true;
+      document.getElementById('play-icon').innerText = '⏸️';
+      document.getElementById('play-text').innerText = '暫停動畫';
+      document.getElementById('play-btn').classList.add('playing');
+      
+      if (currentStep === steps.length - 1) {
+        currentStep = 0;
+        updateUI();
+      }
+
+      autoPlayTimer = setInterval(() => {
+        if (currentStep < steps.length - 1) {
+          currentStep++;
+          updateUI();
+        } else {
+          stopAutoPlay();
+        }
+      }, 4500);
+    }
+
+    function stopAutoPlay() {
+      isPlaying = false;
+      clearInterval(autoPlayTimer);
+      document.getElementById('play-icon').innerText = '▶️';
+      document.getElementById('play-text').innerText = '自動播放動畫';
+      document.getElementById('play-btn').classList.remove('playing');
+    }
+
+    function updateUI() {
+      // 更新步驟按鈕與進度條
+      document.querySelectorAll('.step-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === currentStep);
+      });
+
+      const progressPercent = (currentStep / (steps.length - 1)) * 100;
+      document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+      document.getElementById('prev-btn').disabled = (currentStep === 0);
+      document.getElementById('next-btn').disabled = (currentStep === steps.length - 1);
+
+      // 更新卡片內文 (帶有 Fade In 效果)
+      const stepData = steps[currentStep];
+      const cardEl = document.getElementById('step-content');
+      cardEl.style.animation = 'none';
+      cardEl.offsetHeight; // 強制重繪
+      cardEl.style.animation = 'fadeIn 0.4s ease-in-out';
+      cardEl.innerHTML = `
+        <h2>${stepData.title}</h2>
+        ${stepData.content}
+      `;
+
+      // 更新三角形發光高亮
+      const allTriangles = ['hl-vef', 'hl-vab', 'hl-vcd'];
+      allTriangles.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (stepData.highlights.includes(id)) {
+            el.classList.add('active');
+          } else {
+            el.classList.remove('active');
+          }
+        }
+      });
+
+      // 步驟 1 專屬：大錐體曲面面積右上角顯示
+      const areaStep1El = document.getElementById('area-visual-step1');
+      if (areaStep1El) {
+        areaStep1El.style.display = (currentStep === 1) ? 'block' : 'none';
+      }
+
+      // 步驟 2 專屬：小錐體曲面面積右上角顯示
+      const areaStep2El = document.getElementById('area-visual-step2');
+      if (areaStep2El) {
+        areaStep2El.style.display = (currentStep === 2) ? 'block' : 'none';
+      }
+
+      // 步驟 3 專屬：交替閃爍扣減動畫層
+      const areaStep3El = document.getElementById('area-visual-step3');
+      if (areaStep3El) {
+        areaStep3El.style.display = (currentStep === 3) ? 'block' : 'none';
+      }
+
+      // ★ 步驟 4 專屬：小錐與中錐曲面面積右上角顯示
+      const areaStep4El = document.getElementById('area-visual-step4');
+      if (areaStep4El) {
+        areaStep4El.style.display = (currentStep === 4) ? 'block' : 'none';
+      }
+
+      // 水位區域顯示
+      const waterEl = document.getElementById('water-area');
+      if (waterEl) {
+        waterEl.style.opacity = (stepData.showWater && currentStep !== 3) ? '0.55' : '0';
+      }
+
+      // 標籤動畫彈出顯示
+      const allTags = ['tag-va', 'tag-ae', 'tag-ef', 'tag-vf', 'tag-ab', 'tag-vb', 'tag-vc', 'tag-ce'];
+      allTags.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          if (stepData.showTags.includes(id)) {
+            el.classList.remove('hide');
+            el.classList.add('show');
+          } else {
+            el.classList.remove('show');
+            el.classList.add('hide');
+          }
+        }
+      });
+    }
+
+    function goStep(idx) {
+      stopAutoPlay();
+      currentStep = idx;
+      updateUI();
+    }
+
+    function nextStep() {
+      stopAutoPlay();
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        updateUI();
+      }
+    }
+
+    function prevStep() {
+      stopAutoPlay();
+      if (currentStep > 0) {
+        currentStep--;
+        updateUI();
+      }
+    }
+
+    // 初始化
+    updateUI();
+  </script>
+</body>
+</html>
